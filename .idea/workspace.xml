@@ -137,7 +137,7 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-3" />
     <option name="width" value="1374" />
     <option name="height" value="745" />
@@ -257,12 +257,12 @@
       <workItem from="1551809924574" duration="26000" />
       <workItem from="1551824648174" duration="1960000" />
       <workItem from="1551812481299" duration="9243000" />
-      <workItem from="1551856030170" duration="1128000" />
+      <workItem from="1551856030170" duration="1608000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70719000" />
+    <option name="totallyTimeSpent" value="71199000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
