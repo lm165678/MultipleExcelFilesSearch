@@ -8,12 +8,19 @@ import org.apache.poi.xssf.usermodel.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.Font;
 import java.io.*;
 import java.util.ArrayList;
 
 public class ExcelFrame extends JFrame {
 
+    XSSFSheet newsheet;
+    XSSFWorkbook newWorkbook;
+    XSSFRow newRow ;
+    XSSFCell newCell;
+static int counter = 0;
     JFileChooser chooser;
+    String name;
     File[] files;
 
     public ExcelFrame(){
@@ -25,10 +32,30 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
         chooser.setCurrentDirectory(new File("."));
         chooser.setMultiSelectionEnabled(true);
         JButton open = new  JButton("open");
-        add(open, BorderLayout.CENTER);
+        add(open, BorderLayout.SOUTH);
         open.addActionListener(e -> openFile());
-    }
 
+
+        JLabel label = new JLabel();
+        label.setText("Search APP");
+        label.setFont(new Font("arial",72,72));
+        add(label,BorderLayout.NORTH);
+
+
+        JTextField text = new JTextField("insert here");
+        add(text,BorderLayout.CENTER);
+
+        JButton search = new JButton("click for Search");
+        add(search,BorderLayout.EAST);
+        search.addActionListener(e -> {
+            name = text.getText();
+        });
+
+        JButton export = new JButton("Export ");
+        add(export,BorderLayout.WEST);
+        export.addActionListener(e -> export(newWorkbook));
+
+    }
 
     public void openFile()  {     // This method selects file , and conversts it to XSSFWorkbook
         int i = chooser.showOpenDialog(this);
@@ -36,50 +63,48 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
             return;
         }
         files = chooser.getSelectedFiles();
-      String wordName = "Sadig";
 
 
         for (File file:files){
+
            try(FileInputStream in = new FileInputStream(file);
                XSSFWorkbook workbook = new XSSFWorkbook(in)) {
                XSSFSheet sheet = workbook.getSheetAt(0);
+               ArrayList<Integer> listofRows = select(sheet,name);
 
-               ArrayList<Integer> listofRows = select(sheet,"Sadig");
-
+               System.out.println(name);
                System.out.println(listofRows.get(0));
 
                for (Integer integer : listofRows){
                    System.out.println(integer);
                }
-
-
-               XSSFWorkbook newWorkbook = new XSSFWorkbook();
-               XSSFSheet newsheet = newWorkbook.createSheet();
-               XSSFRow newRow ;
-               XSSFCell newCell;
-
-               String result;
+               newWorkbook = new XSSFWorkbook();
+               newsheet = newWorkbook.createSheet();
 
                for (int c = 0 ; c < listofRows.size(); c++){
                    Row source = sheet.getRow(listofRows.get(c));
-                   newRow = newsheet.createRow(c);
+                   newRow = newsheet.createRow(counter);
+                   counter++;
 
                    for (int b = 0 ; b < source.getLastCellNum();b++){
 
+                       System.out.println(source.getLastCellNum());
+
                        newCell = newRow.createCell(b);
 
-                       if (source.getCell(b) == null){
-                           result = " " ;
-                       }else {
-                           result = source.getCell(b).getRichStringCellValue().getString();
+                       if (source.getCell(b)!=null){
+                           switch (source.getCell(b).getCellType()){
+                               case STRING: newCell.setCellValue(source.getCell(b).getRichStringCellValue());
+                                   break;
+                               case NUMERIC: newCell.setCellValue(source.getCell(b).getNumericCellValue());
+                                   System.out.println(" i am here");
+                                   break;
+                           }
+
                        }
-                       newCell.setCellValue(result);
+
                    }
                }
-
-FileOutputStream fileOutputStream = new FileOutputStream("result.xlsx");
-               newWorkbook.write(fileOutputStream);
-               newWorkbook.close();
 
            }catch (IOException e){
 
@@ -88,24 +113,41 @@ FileOutputStream fileOutputStream = new FileOutputStream("result.xlsx");
 
         }
 
-
-
     }
 
 
+static void export(XSSFWorkbook workbook){
+
+try{
+    FileOutputStream fileOutputStream = new FileOutputStream("result.xlsx");
+    workbook.write(fileOutputStream);
+    workbook.close();
+}catch(IOException e){
+
+}
 
 
-    public static ArrayList<Integer> select(XSSFSheet sheet,String name){
+}
+
+    static ArrayList<Integer> select(XSSFSheet sheet,String name){
        ArrayList<Integer> list = new ArrayList<>();
         for (Row row:sheet){
 
             for (Cell cell : row){
 
 
-                if (cell.getRichStringCellValue().toString().trim().equals(name)){
-                    list.add(cell.getRowIndex());
+                switch (cell.getCellType()){
+                    case STRING:  if (cell.getRichStringCellValue().toString().trim().equals(name)){
+                        list.add(cell.getRowIndex());
+                    }
+                    break;
+                    case NUMERIC:
+                        System.out.println("numeric");
+                    break;
+                    case BLANK:
+                        System.out.println("empty");
+                        break;
                 }
-
             }
 
         }
