@@ -70,7 +70,16 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
 
            try(FileInputStream in = new FileInputStream(file);
                XSSFWorkbook workbook = new XSSFWorkbook(in)) {
-               XSSFSheet sheet = workbook.getSheetAt(0);
+
+
+
+               for (int z = 0; z<workbook.getNumberOfSheets();z++){
+
+
+
+
+
+               XSSFSheet sheet = workbook.getSheetAt(z);
                ArrayList<Integer> listofRows = select(sheet,name);
 
                System.out.println(name);
@@ -105,6 +114,11 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
 
                    }
                }
+
+
+               }
+
+
 
            }catch (IOException e){
 
