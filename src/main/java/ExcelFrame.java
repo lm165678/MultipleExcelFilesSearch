@@ -63,7 +63,8 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
             return;
         }
         files = chooser.getSelectedFiles();
-
+        newWorkbook = new XSSFWorkbook();
+        newsheet = newWorkbook.createSheet();
 
         for (File file:files){
 
@@ -78,8 +79,7 @@ FileNameExtensionFilter filter = new FileNameExtensionFilter("fles","xlsx");
                for (Integer integer : listofRows){
                    System.out.println(integer);
                }
-               newWorkbook = new XSSFWorkbook();
-               newsheet = newWorkbook.createSheet();
+
 
                for (int c = 0 ; c < listofRows.size(); c++){
                    Row source = sheet.getRow(listofRows.get(c));
