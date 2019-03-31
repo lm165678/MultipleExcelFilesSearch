@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 public class ExcelFrame extends JFrame {
 
     String name;
+    String result;
+
+
     XSSFSheet sheet;
     ArrayList<Integer> listofRows;
     XSSFSheet newsheet;
@@ -36,37 +39,59 @@ public class ExcelFrame extends JFrame {
     JButton export;
     JLabel label;
     JTextField text;
+    JTextField resultText;
+
     JButton search;
     JLabel enterKey;
+    JLabel openfile;
+    JLabel exportF;
 
+
+
+    GridLayout gl;
+    Font fL;
+    Font fT;
 
     public ExcelFrame() {
+
+
+fL = new Font("Courier",Font.BOLD,35);
+fT = new Font("Courier",Font.PLAIN,25);
+
+
+resultText = new JTextField("insert here");
+resultText.setFont(fT);
+
         text = new JTextField("insert here",20);
+        text.setFont(fT);
+
         enterKey = new JLabel("Enter keyword");
-        enterKey.setFont(new Font("arial",Font.BOLD,20));
+        enterKey.setFont(fL);
+
+        openfile = new JLabel("Chose files");
+        openfile.setFont(fL);
+
+        exportF = new JLabel("Create new File");
+        exportF.setFont(fL);
+
         search = new JButton("Search");
+        search.setFont(fT);
+
         open = new JButton("open");
+        open.setFont(fT);
+
         start = new JButton("start");
+        start.setFont(fT);
+
         export = new JButton("export");
-
-        JPanel upperPane = new JPanel();
-        JPanel centerPane = new JPanel();
-
-        upperPane.add(enterKey,BorderLayout.WEST);
-        upperPane.add(text,BorderLayout.CENTER);
-        upperPane.add(search,BorderLayout.EAST);
-
-        centerPane.add(open,BorderLayout.CENTER);
-        centerPane.add(start,BorderLayout.EAST);
-        centerPane.add(export,BorderLayout.SOUTH);
-
-        add(upperPane,BorderLayout.NORTH);
-        add(centerPane,BorderLayout.CENTER);
+        export.setFont(fT);
 
 
 
-
-        export.addActionListener(e -> export(newWorkbook));
+        export.addActionListener(e ->{
+            export(newWorkbook);
+            result = resultText.getText();
+        });
 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("fles", "xlsx");
         chooser = new JFileChooser();
@@ -102,6 +127,14 @@ public class ExcelFrame extends JFrame {
             }
         });
 
+        resultText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resultText.setText("");
+            }
+        });
+
+
 
         timer = new Timer(500,e -> {
             if (progressMonitor.isCanceled()){
@@ -114,6 +147,35 @@ public class ExcelFrame extends JFrame {
                 progressMonitor.setProgress(searchWork.getProgress());
             }
         });
+
+
+
+
+
+
+        gl = new GridLayout(3,3);
+
+
+
+        JPanel jp = new JPanel();
+        jp.setLayout(gl);
+
+        jp.add(enterKey);
+        jp.add(text);
+        jp.add(search);
+
+        jp.add(openfile);
+        jp.add(open);
+        jp.add(start);
+
+        jp.add(exportF);
+        jp.add(resultText);
+        jp.add(export);
+
+
+
+        add(jp);
+
 
 
 
@@ -220,10 +282,10 @@ public class ExcelFrame extends JFrame {
     }
 
 
-static void export(XSSFWorkbook workbook){
+ void export(XSSFWorkbook workbook){
 
 try{
-    FileOutputStream fileOutputStream = new FileOutputStream("result.xlsx");
+    FileOutputStream fileOutputStream = new FileOutputStream(result);
     workbook.write(fileOutputStream);
     workbook.close();
 }catch(IOException e){

@@ -1,4 +1,5 @@
 
+import java.awt.*;
 import java.io.IOException;
 
 public class SearchExcel {
@@ -7,9 +8,11 @@ public class SearchExcel {
 
 
 ExcelFrame frame = new ExcelFrame();
-frame.setSize(600 , 400);
+frame.setSize(1000 , 700);
 frame.setVisible(true);
 frame.setDefaultCloseOperation(3);
+frame.setResizable(false);
+
 
 
 
