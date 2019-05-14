@@ -1,4 +1,5 @@
 
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -15,8 +16,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -55,6 +58,10 @@ public class ExcelFrame extends JFrame {
     JLabel enterKey;
     JLabel openfile;
     JLabel exportF;
+    JLabel dinamicstatus;
+
+
+    JLabel status;
 
     Font fL;
     Font fT;
@@ -83,6 +90,14 @@ text = new JTextField("insert here",20);
         enterKey = new JLabel("Enter keyword");
         enterKey.setFont(fL);
         enterKey.setForeground(Color.WHITE);
+
+        status = new JLabel("Status");
+        status.setFont(fL);
+        status.setForeground(Color.WHITE);
+
+        dinamicstatus = new JLabel("");
+        dinamicstatus.setFont(fL);
+        dinamicstatus.setForeground(Color.WHITE);
 
         openfile = new JLabel("Chose files");
         openfile.setFont(fL);
@@ -208,6 +223,14 @@ text = new JTextField("insert here",20);
         jp.add(export);
 
 
+        status.setBounds(10,400,150,50);
+        jp.add(status);
+
+        dinamicstatus.setBounds(200,400,200,50);
+        jp.add(dinamicstatus);
+
+
+
 
         add(jp);
 
@@ -236,25 +259,29 @@ text = new JTextField("insert here",20);
 
     class SearchWork extends SwingWorker<Boolean,Integer>{
         @Override
-        protected Boolean doInBackground() throws Exception {
+        protected Boolean doInBackground(){
             int counter = 0;
             newWorkbook = new XSSFWorkbook();
             newsheet = newWorkbook.createSheet();
             for (File file : files) {
                 try (FileInputStream in = new FileInputStream(file);
-                     XSSFWorkbook workbook = new XSSFWorkbook(in)) {
+                     XSSFWorkbook workbook = new XSSFWorkbook(in)
+                ) {
                     for (int z = 0; z < workbook.getNumberOfSheets(); z++) {
+
                         sheet = workbook.getSheetAt(z);
+                        System.out.println(workbook.getNumberOfSheets());
 
 
 
-                     name = name.replaceAll("\\s+"," ");
+                     name = name.replaceAll("\\s+"," ").toLowerCase().trim();
 
                         listofRows = selectString(name);
 
 
 
                         if (!listofRows.isEmpty()) {
+
                             for (int c = 0; c < listofRows.size(); c++) {
                                 Row source = sheet.getRow(listofRows.get(c));
                                 newRow = newsheet.createRow(counter);
@@ -263,9 +290,9 @@ text = new JTextField("insert here",20);
 
                                 for (int b = 0; b < source.getLastCellNum(); b++) {
 
-                                    System.out.println(source.getLastCellNum());
 
                                     newCell = newRow.createCell(b);
+
 
                                     if (source.getCell(b) != null) {
                                         switch (source.getCell(b).getCellType()) {
@@ -273,8 +300,15 @@ text = new JTextField("insert here",20);
                                                 newCell.setCellValue(source.getCell(b).getRichStringCellValue());
                                                 break;
                                             case NUMERIC:
-                                                newCell.setCellValue(source.getCell(b).getNumericCellValue());
-                                                System.out.println(" i am here");
+                                                if (HSSFDateUtil.isCellDateFormatted(source.getCell(b))){
+
+                                                    newCell.setCellValue(source.getCell(b).getDateCellValue());
+
+                                                }else {
+                                                    newCell.setCellValue(source.getCell(b).getNumericCellValue());
+
+                                                }
+
                                                 break;
                                         }
 
@@ -320,30 +354,38 @@ try{
         DataFormatter dataFormatter = new DataFormatter();
         for (Row row:sheet){
             for (Cell cell : row){
+                switch (cell.getCellType()){
+                    case STRING:
+                        String cellValue = dataFormatter.formatCellValue(cell);
+                        String  newcellValue = cellValue.replaceAll("((\\s*,\\s*)|\\s+)"," ").trim().toLowerCase();
 
+                        dinamicstatus.setText(newcellValue);
 
-
-                String cellValue = dataFormatter.formatCellValue(cell);
-               String  newcellValue = cellValue.replaceAll("\\s+"," ").trim();
-
-               enterKey.setText(newcellValue);
-
-
-                if (Pattern.matches(key+"\\s+\\w+",newcellValue)){
-                    list.add(cell.getRowIndex());
-                }else if (Pattern.matches(key+"\\s+\\w+\\s+\\w+",newcellValue)){
-                    list.add(cell.getRowIndex());
+                        if (Pattern.matches(key+"\\s\\w+",newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }else if (Pattern.matches("\\w+\\s"+key,newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }
+                        else if (Pattern.matches(key+"\\s\\w+\\s\\w+",newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }else if (Pattern.matches("\\w+\\s"+key+"\\s\\w+",newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }else if (Pattern.matches("\\w+\\s\\w+\\s"+key,newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }
+                        else if(Pattern.matches(key,newcellValue)){
+                            list.add(cell.getRowIndex());
+                        }
+                        break;
                 }
-                else if(Pattern.matches(key,cellValue)){
-                    list.add(cell.getRowIndex());
-                }
+
+
+
 
             }
-
         }
         return list;
     }
-
 }
 
 

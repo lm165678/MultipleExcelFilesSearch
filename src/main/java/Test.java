@@ -1,3 +1,7 @@
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.regex.Pattern;
 
 public class Test {
@@ -6,21 +10,22 @@ public class Test {
 
 
 
-        String name = "Sadig    naibbayli";
-        String value = "Sadig naibbayli Faig";
 
-      name =   name.replaceAll("\\s+"," ");
-        System.out.println(name);
+  String d = " SADig , fdfsf".toLowerCase().trim();
 
-        if (Pattern.matches(name+"\\s*\\w+",value)){
-            System.out.println("matches");
-        }
+  String check = "sadig".toLowerCase();
+
+
+  String modified = d.replaceAll("((\\s*,\\s*)|\\s+)"," ");
+
+        System.out.println(modified
+        );
+
+
+  }
 
 
 
 
 
     }
-
-
-}
